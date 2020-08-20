@@ -1,0 +1,30 @@
+{
+  "name": "stripe-fire-sync",
+  "version": "1.0.0",
+  "description": "Synchronise data from Firebase dashboard to Stripe dashboard.",
+  "scripts": {
+    "start": "nodemon --watch src --exec ts-node src/index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darknesszy/stripe-fire-sync.git"
+  },
+  "author": "Michael May",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/darknesszy/stripe-fire-sync/issues"
+  },
+  "homepage": "https://github.com/darknesszy/stripe-fire-sync#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "firebase-admin": "^9.1.0",
+    "stripe": "^8.89.0"
+  }
+}
