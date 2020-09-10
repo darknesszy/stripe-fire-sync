@@ -1,36 +1,21 @@
-import { firestore, initializeApp, credential } from 'firebase-admin'
-import { injectable } from 'inversify'
+import { firestore } from 'firebase-admin'
+import { injectable, inject } from 'inversify'
 import Stripe from 'stripe'
+import { FirestoreClient, StripeClient } from '../clients'
 
 @injectable()
 export class PaymentSyncer {
-    private firestoreClient: firestore.Firestore
-    private stripeClient: Stripe
+    @inject(FirestoreClient) private firestoreClient!: FirestoreClient
+    @inject(StripeClient) private stripeClient!: StripeClient
+
     private collectionRef?: firestore.CollectionReference
     private batch?: firestore.WriteBatch
     private priceIds?: Map<string, { price: number, productId: string }>
 
-    constructor() {
-        this.firestoreClient = firestore(
-            initializeApp({
-                credential: credential.cert(require(process.env['GOOGLE_APPLICATION_CREDENTIALS']!)),
-                databaseURL: `https://${process.env['PROJECT_ID']}.firebaseio.com`
-            })
-        )
-
-        this.stripeClient = new Stripe(
-            process.env['STRIPE_PUBLIC_KEY']!,
-            {
-                apiVersion: '2020-08-27',
-                typescript: true
-            }
-        )
-    }
-
     async syncToStripe() {
         this.priceIds = await this.getStripePrices()
-        this.collectionRef = this.firestoreClient.collection('product')
-        this.batch = this.firestoreClient.batch()
+        this.collectionRef = this.firestoreClient.connect().collection('product')
+        this.batch = this.firestoreClient.connect().batch()
 
         const snapshots = await this.collectionRef.get()
         for await (let doc of snapshots.docs) {
@@ -61,7 +46,7 @@ export class PaymentSyncer {
     }
 
     async getStripePrices() {
-        const prices = await this.stripeClient.prices.list({ active: true, limit: 100 })
+        const prices = await this.stripeClient.connect().prices.list({ active: true, limit: 100 })
         await new Promise(r => setTimeout(r, 5))
         return new Map(
             prices.data.map(el => 
@@ -75,7 +60,7 @@ export class PaymentSyncer {
         let price: Stripe.Price
 
         try {
-            product = await this.stripeClient.products.create({
+            product = await this.stripeClient.connect().products.create({
                 name: document['name'],
                 metadata: { dbId: id }
             })
@@ -84,7 +69,7 @@ export class PaymentSyncer {
         }
 
         try {
-            price = await this.stripeClient.prices.create({
+            price = await this.stripeClient.connect().prices.create({
                 product: product.id,
                 currency: 'aud',
                 unit_amount: document['price']
@@ -104,13 +89,13 @@ export class PaymentSyncer {
         let price: Stripe.Price
 
         try {
-            deactivatedPrice = await this.stripeClient.prices.update(document['stripe'], { active: false })
+            deactivatedPrice = await this.stripeClient.connect().prices.update(document['stripe'], { active: false })
         } catch (err) {
             throw new Error(err)
         }
 
         try {
-            price = await this.stripeClient.prices.create({
+            price = await this.stripeClient.connect().prices.create({
                 product: deactivatedPrice.product as string,
                 currency: 'aud',
                 unit_amount: document['price']
@@ -127,8 +112,8 @@ export class PaymentSyncer {
 
     async disableDanglingStripePrices() {
         for await (let [key, value] of this.priceIds!) {
-            await this.stripeClient.products.update(value.productId, { active: false })
-            await this.stripeClient.prices.update(key)
+            await this.stripeClient.connect().products.update(value.productId, { active: false })
+            await this.stripeClient.connect().prices.update(key)
             await new Promise(r => setTimeout(r, 10))
             console.log(`Disabled product ID: ${value.productId} on Stripe`)
         }
