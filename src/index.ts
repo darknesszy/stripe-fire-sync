@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import FirebaseAdmin from 'firebase-admin'
 import dotenv from 'dotenv'
 import { Container } from 'inversify'
+import { clearStripeIds } from './utils/purger'
 import { PaymentSyncer } from './payment'
 
 // Setup environment variables
@@ -15,3 +16,4 @@ console.log('# Running Stripe Fire Sync...')
 
 const paymentSyncer = serviceProvider.resolve(PaymentSyncer)
 paymentSyncer.syncToStripe()
+// clearStripeIds('product')
