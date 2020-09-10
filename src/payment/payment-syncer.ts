@@ -56,7 +56,7 @@ export class PaymentSyncer {
             throw Error(err)
         }
 
-        this.disablePrices()
+        this.disableDanglingStripePrices()
         console.log('All product price changes updated successfully')
     }
 
@@ -125,7 +125,7 @@ export class PaymentSyncer {
         
     }
 
-    async disablePrices() {
+    async disableDanglingStripePrices() {
         for await (let [key, value] of this.priceIds!) {
             await this.stripeClient.products.update(value.productId, { active: false })
             await this.stripeClient.prices.update(key)
@@ -133,15 +133,4 @@ export class PaymentSyncer {
             console.log(`Disabled product ID: ${value.productId} on Stripe`)
         }
     }
-}
-
-export interface FProduct {
-    id: string
-    stripe: string
-    name: string
-    price: number
-}
-
-export interface SProduct extends Stripe.Product {
-    price: Stripe.Price
 }
