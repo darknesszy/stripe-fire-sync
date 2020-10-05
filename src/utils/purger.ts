@@ -12,4 +12,5 @@ export const clearStripeIds = async (collectionName: string) => {
     const snapshots = await db.collection(collectionName).get()
     snapshots.forEach(el => batch.update(el.ref, { stripe: firestore.FieldValue.delete() }))
     await batch.commit()
+    console.log(`All stripe id removed from collection: ${collectionName}`)
 }

@@ -1,3 +1,7 @@
+.vscode
+*.code-workspace
+.env.bak
+
 # Logs
 logs
 *.log
