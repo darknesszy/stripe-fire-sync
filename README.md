@@ -1,4 +1,4 @@
-# Stripe Fire Sync
+# Stripe FireSync
 Synchronise data between Firebase dashboard and Stripe dashboard. 
 
 ** Currently only support manual run. Future updates will add change detection, allowing it to be hosted on a server.
