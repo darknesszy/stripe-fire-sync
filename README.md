@@ -16,6 +16,20 @@ File path to the API key json file downloaded from Firebase project settings.
 
 Project ID found in Firebase project settings.
 
+# Quick Start
+
+Run installation of node modules.
+
+`npm install`
+
+Build project with Typescript. Output is in ./dist folder.
+
+`npm build`
+
+Create a file named .env in the root directory and fill in the environment variables. Run the tool.
+
+`node ./dist/index.js --product -p price -n name`
+
 # Usage
 `node ./dist/index.js [COMMAND] [ARGS...]`
 
