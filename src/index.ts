@@ -46,5 +46,5 @@ if(args['product']) {
     const collectionName = args['s'] || args['sync']
     clearStripeIds(collectionName)
 } else {
-    throw Error('Not a valid command');
+    console.error('Not a valid command');
 }
